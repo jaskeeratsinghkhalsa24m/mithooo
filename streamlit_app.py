@@ -124,7 +124,7 @@ html_code = f"""
         <button class="open-btn" onclick="showLetter()">Open My Letter ✉️</button>
         <div class="letter" id="let">
             I am sorry for not being a good boyfriend. <br><br>
-            I love you so much bubu, I not taken you for granted bubu, bas ye hum door hai na, alag alag hogaya hamara sab, isiliye aisa hai, but I love you so much and I think about you everytime love, i JUST MISS YOU A LOTTTTT JALDI SE MERE PAAS AAAJAAOOOOOOOOOO
+            I love you so much bubu, I care about you a lot mithoo, I cant even sleep properly agar meri tumse baat na hui ho, I just want to hear your voice before sleeping... I have not taken you for granted bubu, bas ye hum door hai na, alag alag hogaya hamara sab, isiliye aisa hai, but I love you so much and I think about you everytime love, I JUST MISS YOU A LOTTTTT JALDI SE MERE PAAS AAAJAAOOOOOOOOOO
         </div>
     </div>
 
