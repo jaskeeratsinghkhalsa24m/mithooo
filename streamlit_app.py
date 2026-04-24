@@ -38,7 +38,6 @@ if os.path.exists(images_path):
             if os.path.exists(p):
                 try:
                     img_b64 = get_base64(p)
-                    # Corrected string concatenation to avoid f-string conflicts
                     photo_tags += '<div class="photo-frame" style="transform: rotate(' + str((i%2*6)-3) + 'deg);">'
                     photo_tags += '<div class="img-wrapper">'
                     photo_tags += '<img src="data:image/jpeg;base64,' + img_b64 + '">'
@@ -97,7 +96,7 @@ html_code = f"""
         .img-wrapper {{ width: 100%; height: 320px; overflow: hidden; background: #eee; }}
         .img-wrapper img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
 
-        /* Envelope */
+        /* Envelope and Letter */
         .envelope-wrapper {{ position: relative; height: 350px; width: 500px; background-color: var(--dark-pink); margin: 100px auto; display: flex; justify-content: center; cursor: pointer; }}
         .envelope-wrapper:before {{ content: ""; position: absolute; z-index: 2; border-top: 175px solid transparent; border-right: 250px solid var(--primary-pink); border-bottom: 175px solid var(--primary-pink); border-left: 250px solid var(--primary-pink); }}
         .flap {{ position: absolute; top: 0; width: 0; height: 0; border-top: 180px solid var(--dark-pink); border-left: 250px solid transparent; border-right: 250px solid transparent; transform-origin: top; transition: transform 0.4s 0.4s, z-index 0.4s 0.4s; z-index: 5; }}
@@ -106,6 +105,18 @@ html_code = f"""
         .envelope-wrapper.open .letter-content {{ transform: translateY(-220px); height: auto; min-height: 350px; z-index: 6; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }}
         .heart-seal {{ position: absolute; top: 140px; left: 220px; width: 60px; height: 60px; background: #ff4d6d; z-index: 6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }}
         .open .heart-seal {{ opacity: 0; }}
+
+        /* Beautiful Final Text */
+        #final-text {{
+            display: none;
+            font-family: 'Dancing Script', cursive;
+            font-size: 4.5rem;
+            color: white;
+            text-shadow: 0 0 20px #ff4d6d, 0 0 30px #ff4d6d;
+            margin-top: 50px;
+            animation: fadeInText 2s ease forwards;
+        }}
+        @keyframes fadeInText {{ from {{ opacity: 0; transform: scale(0.8); }} to {{ opacity: 1; transform: scale(1); }} }}
     </style>
 </head>
 <body>
@@ -136,6 +147,9 @@ html_code = f"""
                 I love you so much bubu, I not taken you for granted bubu, bas ye hum door hai na, alag alag hogaya hamara sab, isiliye aisa hai, but I love you so much and I think about you everytime love, i JUST MISS YOU A LOTTTTT JALDI SE MERE PAAS AAAJAAOOOOOOOOOO
             </div>
         </div>
+
+        <h2 id="final-text">LOVE YOU HAINAAAAAAAA</h2>
+
         <div style="height: 300px;"></div>
     </div>
 
@@ -170,7 +184,13 @@ html_code = f"""
         }});
 
         function toggleLetter() {{
-            document.getElementById('envelope').classList.toggle('open');
+            const env = document.getElementById('envelope');
+            env.classList.toggle('open');
+            if(env.classList.contains('open')) {{
+                setTimeout(() => {{
+                    document.getElementById('final-text').style.display = 'block';
+                }}, 800);
+            }}
         }}
     </script>
 </body>
