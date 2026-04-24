@@ -12,7 +12,7 @@ def get_base64(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-# Ensure we are looking in the correct directory
+# File path handling
 current_dir = os.path.dirname(os.path.abspath(__file__))
 images_path = os.path.join(current_dir, "images")
 music_path = os.path.join(current_dir, "our-song.mp3")
@@ -23,10 +23,10 @@ if os.path.exists(music_path):
     try:
         music_base64 = get_base64(music_path)
         music_html = f'<audio id="bg-music" loop><source src="data:audio/mp3;base64,{music_base64}" type="audio/mp3"></audio>'
-    except Exception as e:
-        music_html = f""
+    except:
+        pass
 
-# Load Photos (Checks for 1-30 with multiple extensions)
+# Load Photos with improved "No-White-Space" styling
 photo_tags = ""
 extensions = [".jpg", ".jpeg", ".png", ".JPG", ".PNG"]
 
@@ -38,17 +38,17 @@ if os.path.exists(images_path):
             if os.path.exists(p):
                 try:
                     img_b64 = get_base64(p)
-                    # Use a standard polaroid-style frame for the photos
+                    # This styling crops the photo to fill the frame perfectly
                     photo_tags += f'''
-                    <div style="background: white; padding: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 20px; transform: rotate({(i%2*4)-2}deg);">
-                        <img src="data:image/jpeg;base64,{img_b64}" style="width:100%; display:block;">
+                    <div class="photo-frame" style="transform: rotate({(i%2*6)-3}deg);">
+                        <div class="img-wrapper">
+                            <img src="data:image/jpeg;base64,{img_b64}">
+                        </div>
                     </div>'''
                     found = True
                     break
                 except:
                     continue
-        if not found:
-            photo_tags += f""
 
 # The Romantic Interface
 html_code = f"""
@@ -59,49 +59,70 @@ html_code = f"""
     <style>
         :root {{ --primary-pink: #ff4d6d; --soft-pink: #ffccd5; }}
         body {{ 
-            margin: 0; 
+            margin: 0; padding: 0;
             font-family: 'Quicksand', sans-serif; 
             background: linear-gradient(135deg, #ffafbd, #ffc3a0); 
-            color: white; 
-            overflow-x: hidden; 
-            min-height: 100vh;
+            color: white; overflow-x: hidden;
         }}
         
         .heart-bg {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }}
         .heart {{ position: absolute; color: rgba(255, 77, 109, 0.6); animation: float 6s infinite linear; font-size: 20px; }}
         @keyframes float {{ 0% {{ transform: translateY(110vh); opacity: 1; }} 100% {{ transform: translateY(-10vh); opacity: 0; }} }}
 
+        /* Password Screen */
         #pass-screen {{ 
             position: fixed; inset: 0; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 100; 
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); 
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); 
         }}
-        .keypad {{ background: rgba(255,255,255,0.25); padding: 30px; border-radius: 20px; border: 1px solid white; text-align: center; }}
-        .display {{ background: white; color: var(--primary-pink); padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 28px; font-weight: bold; letter-spacing: 8px; min-width: 150px; }}
-        .grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }}
-        button.num-key {{ width: 60px; height: 60px; border-radius: 50%; border: none; font-weight: bold; cursor: pointer; font-size: 20px; background: white; color: #333; }}
-        button.num-key:active {{ background: var(--soft-pink); }}
+        .keypad {{ background: rgba(255,255,255,0.2); padding: 30px; border-radius: 20px; border: 1px solid white; text-align: center; }}
+        .display {{ background: white; color: var(--primary-pink); padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 28px; font-weight: bold; letter-spacing: 8px; }}
+        .grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }}
+        button {{ width: 60px; height: 60px; border-radius: 50%; border: none; font-weight: bold; cursor: pointer; background: white; font-size: 18px; }}
+
+        /* Photo Gallery Styling */
+        #content {{ display: none; text-align: center; padding: 50px 10px; z-index: 10; position: relative; }}
+        .heading {{ font-family: 'Dancing Script', cursive; font-size: 3.5rem; margin-bottom: 40px; }}
         
-        #content {{ display: none; text-align: center; padding: 50px 20px; position: relative; z-index: 10; }}
-        .heading {{ font-family: 'Dancing Script', cursive; font-size: 4rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.2); }}
         .photo-grid {{ 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 25px; 
-            margin: 40px auto; 
-            max-width: 1100px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 30px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
         }}
-        .letter {{ 
+
+        .photo-frame {{
+            background: white;
+            padding: 12px 12px 40px 12px; /* Traditional Polaroid look */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }}
+
+        .img-wrapper {{
+            width: 100%;
+            height: 300px; /* Forces a uniform height */
+            overflow: hidden;
+            background: #eee;
+        }}
+
+        .img-wrapper img {{
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* THIS REMOVES THE WHITE SPACE BY FILLING THE AREA */
+            display: block;
+        }}
+
+        .photo-frame:hover {{ transform: scale(1.05) rotate(0deg) !important; z-index: 20; }}
+
+        /* Letter Styling */
+        .letter-container {{ margin: 60px auto; max-width: 600px; }}
+        .letter-box {{ 
             background: #fffdf9; color: #333; padding: 40px; 
-            border-radius: 10px; margin: 50px auto; max-width: 650px; 
-            text-align: left; line-height: 1.8; display: none; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--primary-pink);
-            font-size: 1.2rem;
-        }}
-        .open-btn {{ 
-            padding: 20px 40px; font-size: 1.3rem; background: var(--primary-pink); 
-            color: white; border: none; border-radius: 50px; cursor: pointer; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); font-weight: bold;
+            border-radius: 5px; text-align: left; line-height: 1.8; 
+            display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            font-size: 1.2rem; border-top: 8px solid var(--primary-pink);
         }}
     </style>
 </head>
@@ -113,23 +134,26 @@ html_code = f"""
         <div class="keypad">
             <div class="display" id="dis">****</div>
             <div class="grid" id="keys"></div>
-            <p style="margin-top: 15px;">Hint: 2424</p>
+            <p>Hint: 2424</p>
         </div>
     </div>
 
     <div id="content">
         <h1 class="heading">I AM SORRY MITHOO ❤️</h1>
         <div class="photo-grid">{photo_tags}</div>
-        <p style="font-size: 1.8rem; margin: 40px 0;">Scroll down bubu... ⬇️</p>
-        <button class="open-btn" onclick="showLetter()">Open My Letter ✉️</button>
-        <div class="letter" id="let">
-            I am sorry for not being a good boyfriend. <br><br>
-            I love you so much bubu, I care about you a lot mithoo, I cant even sleep properly agar meri tumse baat na hui ho, I just want to hear your voice before sleeping... I have not taken you for granted bubu, bas ye hum door hai na, alag alag hogaya hamara sab, isiliye aisa hai, but I love you so much and I think about you everytime love, I JUST MISS YOU A LOTTTTT JALDI SE MERE PAAS AAAJAAOOOOOOOOOO
+        
+        <div class="letter-container">
+            <p style="font-size: 1.5rem;">Scroll down for my heart... ⬇️</p>
+            <button onclick="showLetter()" style="padding: 15px 40px; border-radius: 30px; border: none; background: #ff4d6d; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer;">Open My Letter ✉️</button>
+            <div class="letter-box" id="let">
+                I am sorry for not being a good boyfriend. <br><br>
+                I love you so much bubu, I not taken you for granted bubu, bas ye hum door hai na, alag alag hogaya hamara sab, isiliye aisa hai, but I love you so much and I think about you everytime love, i JUST MISS YOU A LOTTTTT JALDI SE MERE PAAS AAAJAAOOOOOOOOOO
+            </div>
         </div>
     </div>
 
     <script>
-        // Floating Hearts
+        // Hearts logic
         setInterval(() => {{
             const h = document.createElement('div');
             h.className = 'heart'; h.innerHTML = '❤️';
@@ -138,12 +162,11 @@ html_code = f"""
             setTimeout(() => h.remove(), 6000);
         }}, 300);
 
-        // Keypad Logic
+        // Keypad logic
         let pin = "";
         const keys = [1,2,3,4,5,6,7,8,9,'C',0,'✓'];
         keys.forEach(k => {{
             const b = document.createElement('button');
-            b.className = 'num-key';
             b.innerText = k;
             b.onclick = () => {{
                 if(k === 'C') pin = "";
@@ -153,20 +176,20 @@ html_code = f"""
                         if(m) m.play();
                         document.getElementById('pass-screen').style.display = 'none';
                         document.getElementById('content').style.display = 'block';
-                    }} else {{ alert("Wrong PIN!"); pin = ""; }}
+                    }} else {{ alert("Incorrect PIN, Mithoo!"); pin = ""; }}
                 }} else if(pin.length < 4) {{ pin += k; }}
                 document.getElementById('dis').innerText = "*".repeat(pin.length) || "****";
             }};
             document.getElementById('keys').appendChild(b);
         }});
 
-        function showLetter() {{ 
-            document.getElementById('let').style.display = 'block'; 
-            window.scrollTo({{ top: document.body.scrollHeight, behavior: 'smooth' }}); 
+        function showLetter() {{
+            document.getElementById('let').style.display = 'block';
+            window.scrollTo({{ top: document.body.scrollHeight, behavior: 'smooth' }});
         }}
     </script>
 </body>
 </html>
 """
 
-components.html(html_code, height=3000, scrolling=True)
+components.html(html_code, height=3500, scrolling=True)
